@@ -1,0 +1,4 @@
+node_modules
+__pycache__
+dc_api_key.txt
+package.json
