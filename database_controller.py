@@ -1,7 +1,7 @@
 import sqlite3
 import datetime
-from enums import MicState
 from logger import log
+from utils import date_string_to_date, get_mic_state
 
 conn = sqlite3.connect('database/user_info.db')
 c = conn.cursor()
@@ -42,6 +42,8 @@ c.execute('''CREATE TABLE IF NOT EXISTS online_status_time (
             FOREIGN KEY (user_id, server_id) REFERENCES user_info (user_id, server_id)
             );''')
 
+SCAN_SERVER_INTERVAL = 30
+
 def user_exists(user_id, server_id):
     """Funktion zum Überprüfen, ob ein Benutzer in der Datenbank existiert"""
     
@@ -67,7 +69,7 @@ def insert_user(member):
                      VALUES (?, ?, 0, 0, 0, 0, ?)''', (member.id, member.guild.id, None))
     conn.commit()
 
-def update_user_data(member, before, after, update_join_time=True, update_state_change_time=True):
+def update_user_data(member, before, after, update_join_time=True, update_state_change_time=True, initial_scan=False):
     """Hauptfunktion zum Aktualisieren der Benutzerdaten. Diese Funktion wird immer dann aufgerufen,
     wenn sich der Benutzer in einem Voice-Channel bewegt, den Server betritt oder verlässt.
     Wenn der User jedoch seinen Mute-Status ändert, wird direkt die Funktion update_mute_data() aufgerufen.
@@ -91,7 +93,7 @@ def update_user_data(member, before, after, update_join_time=True, update_state_
     # Da hier Datenbankänderungen vorgenommen werden, ist es wichtig, dass die Aufrufe in der richtigen Reihenfolge erfolgen. Diese darf nicht verändert werden.
     update_voice_channel_data(member, before, after)
     update_mute_data(member, before, after)
-    update_online_status_time(user_id=member.id, status=str(member.status))
+    update_online_status_time(user_id=member.id, status=str(member.status), initial_scan=initial_scan)
 
     args = [str(member.status)]
     if update_join_time:
@@ -124,7 +126,7 @@ def update_mute_data(member, before, after):
     result = c.execute(query, (member.id,)).fetchone()
 
     previous_state, last_state_change_time_str = result
-
+    
     last_state_change_time = None
     if last_state_change_time_str is not None:
         last_state_change_time = date_string_to_date(
@@ -163,32 +165,27 @@ def update_mute_data(member, before, after):
 
     conn.commit()
 
-
-def get_mic_state(member) -> str:
-    if member.voice is None:
-        return ''
-
-    if member.voice.self_deaf:
-        return MicState.SOUND_MUTED.value
-
-    if member.voice.self_mute:
-        return MicState.MUTED.value
-
-    return MicState.UNMUTED.value
-
-
-def update_online_status_time(before=None, after=None, user_id=1, status='') -> None:
+def update_online_status_time(before=None, after=None, user_id=1, status='', initial_scan=False) -> None:
     """
-    Addiert anhand des letzten Online-Status Changes die Zeit, die der User in diesem Status (Online, Offline, Idle, Do Not Disturb) verbracht hat.
-                 Dadurch, dass der Online-Status alle X-Sekunden durch die main.py => scan_server() aktualisiert wird
-                 und es in diesem Falle keine "before" und "after" VoiceState gibt, sind die Parameter "before" und "after" standardmäßig None.
-                 In diesem Fall wird dann manuell die user_id und der status übergeben. Wenn "before" und "after" nicht None sind, werden user_id und status ignoriert.
+    Based on the last online status change, adds the time that the user spent in this status (Online, Offline, Idle, Do Not Disturb).
+                 Because the online status is updated every X seconds by the main.py => scan_server()
+                 and in this case there is no "before" and "after" VoiceState, the parameters "before" and "after" are None by default.
+                 In this case, the user_id and status are then passed manually. If "before" and "after" are not None, user_id and status are ignored.
     Parameter: 
         before - VoiceState 
         after - VoiceState
         user_id - int
         status - str
     """
+    if initial_scan:
+        # Fix for issue #1: Update once so that the online status time can be calculated correctly again from this point onwards 
+        # if the bot was offline for a certain period of time.
+        c.execute('''UPDATE online_status_time
+                    SET last_status_change = ?
+                    WHERE user_id = ?''', (datetime.datetime.utcnow(), user_id))
+        conn.commit()
+        return
+    
     now = datetime.datetime.utcnow()
 
     if before is None and after is None:
@@ -196,11 +193,12 @@ def update_online_status_time(before=None, after=None, user_id=1, status='') -> 
         last_status_change = c.execute(query, (user_id,)).fetchone()[0]
 
         if last_status_change is None:
-            last_status_change = now.strftime('%Y-%m-%d %H:%M:%S.%f')
+            # We need to substrac SCAN_SERVER_INTERVAL from the current time, because otherwise the time is wrong at the initial scan.
+            last_status_change = now
+        else:
+            last_status_change = date_string_to_date(last_status_change)
 
-        time_diff = (now - datetime.datetime.strptime(last_status_change,
-                                                      '%Y-%m-%d %H:%M:%S.%f')).total_seconds()
-
+        time_diff = (now - last_status_change).total_seconds()
         time_diff = round(time_diff, 2)
 
         c.execute(f'''UPDATE online_status_time
@@ -226,8 +224,10 @@ def update_online_status_time(before=None, after=None, user_id=1, status='') -> 
         last_status_change = now.strftime('%Y-%m-%d %H:%M:%S.%f')
 
     # Differnz zwischen dem letzten Status-Change und dem jetzigen Zeitpunkt berechnen
-    time_diff = (now - datetime.datetime.strptime(last_status_change,
-                 '%Y-%m-%d %H:%M:%S.%f')).total_seconds()
+    print(now, last_status_change, date_string_to_date(last_status_change))
+    time_diff = (now - date_string_to_date(last_status_change)).total_seconds()
+    
+    print(time_diff)
 
     time_diff = round(time_diff, 2)
 
@@ -236,12 +236,6 @@ def update_online_status_time(before=None, after=None, user_id=1, status='') -> 
                       last_status_change = ?
                   WHERE user_id = ?''', (time_diff, now, before.id))
     conn.commit()
-
-
-def date_string_to_date(time_str):
-    return datetime.datetime.strptime(
-        time_str, '%Y-%m-%d %H:%M:%S.%f')
-
 
 def update_voice_channel_data(member, before, after):
     if before is None and after is None:

@@ -1,5 +1,5 @@
 import discord
-from database_controller import user_exists, insert_user, update_user_data, update_mute_data, update_online_status_time
+from database_controller import SCAN_SERVER_INTERVAL, user_exists, insert_user, update_user_data, update_mute_data, update_online_status_time
 from logger import log
 from discord.ext import tasks
 
@@ -10,19 +10,23 @@ intents.members = True
 
 client = discord.Client(intents=intents)
 
+initial_scan = True
 
 # Funktion zum Scannen des Servers und Aktualisieren der Benutzerdaten. insert bzw. update muss hier einmal ausgeführt werden.
-@tasks.loop(seconds=60)
+@tasks.loop(seconds=SCAN_SERVER_INTERVAL)
 async def scan_server():
+    global initial_scan
     for guild in client.guilds:
         for member in guild.members:
             if not user_exists(member.id, member.guild.id):
                 insert_user(
                     member)
             else:
+                voice_channel = member.voice.channel if member.voice else None
                 update_user_data(
-                    member, None, member.voice.channel if member.voice else None, update_join_time=False)
+                    member=member, before=voice_channel, after=voice_channel, update_join_time=False, initial_scan=initial_scan)
 
+    initial_scan = False
     log('Server scan completed')
 
 
