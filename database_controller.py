@@ -239,10 +239,7 @@ def update_online_status_time(before=None, after=None, user_id=1, status='', ini
         last_status_change = now.strftime('%Y-%m-%d %H:%M:%S.%f')
 
     # Differnz zwischen dem letzten Status-Change und dem jetzigen Zeitpunkt berechnen
-    print(now, last_status_change, date_string_to_date(last_status_change))
     time_diff = (now - date_string_to_date(last_status_change)).total_seconds()
-
-    print(time_diff)
 
     time_diff = round(time_diff, 2)
 
