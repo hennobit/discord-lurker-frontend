@@ -1,7 +1,7 @@
 <template>
     <div id="table-container">
         <input type="text" id="filter-bar" placeholder="Filter" v-model="filterText" @input="() => getFilteredUsers()">
-        <table>
+        <table :class="botStatus === '🔴' ? 'grey-table' : ''">
             <thead>
                 <tr>
                     <th @click="sortTable('username')">Username <font-awesome-icon icon="fa-solid fa-sort" class="icon" />
@@ -23,6 +23,8 @@
                             class="icon" /></th>
                     <th @click="sortTable('dnd_total')">Do Not Disturb Total <font-awesome-icon icon="fa-solid fa-sort"
                             class="icon" /></th>
+                    <th @click="sortTable('percentage_total')">% of Online Time on Discord<font-awesome-icon
+                            icon="fa-solid fa-sort" class="icon" /></th>
                 </tr>
             </thead>
             <tbody>
@@ -37,6 +39,7 @@
                     <td>{{ formatTime(user.online_total) }} </td>
                     <td>{{ formatTime(user.idle_total) }} </td>
                     <td>{{ formatTime(user.dnd_total) }} </td>
+                    <td>{{ user.percentage_total }}%</td>
                 </tr>
             </tbody>
         </table>
@@ -44,7 +47,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { useBotStatusStore } from '@/stores/botStatusStore';
 
 interface User {
     user_id: number;
@@ -61,6 +65,7 @@ interface User {
     idle_total: number;
     dnd_total: number;
     last_status_change: string;
+    percentage_total: number;
 }
 
 const users = ref<User[]>([]);
@@ -68,8 +73,15 @@ const filteredUsers = ref<User[]>([]);
 const filterText = ref("");
 const sortColumn = ref<string>(''); // Die ausgewählte Spalte zum Sortieren
 const sortDirection = ref<number>(1); // Die Sortierrichtung (1 für aufsteigend, -1 für absteigend)
+const botStatusStore = useBotStatusStore();
+const botStatus = ref(botStatusStore.status);
 
 onMounted(() => {
+    getUserData();
+    setInterval(getUserData, 5000);
+});
+
+function getUserData() {
     fetch('http://localhost:3000/users')
         .then((response) => {
             if (!response.ok) {
@@ -80,13 +92,17 @@ onMounted(() => {
         .then((data) => {
             // Beide füllen. users als Cache und filteredUsers als Filter
             users.value = data;
-            filteredUsers.value = data;
+            users.value.forEach(user => {
+                const percentage = Math.round(user.total_time / (user.online_total + user.idle_total + user.dnd_total) * 100);
+                user.percentage_total = percentage ? percentage : 0;
+            });
+            filteredUsers.value = users.value;
+            console.log(users.value);
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
         });
-});
-
+}
 
 function getUserStatusIcon(status: string) {
     if (status == 'online') {
@@ -144,16 +160,34 @@ function sortTable(column: keyof User) {
             return 0;
         }
 
-        if (aValue < bValue) {
-            return -sortDirection.value;
-        } else if (aValue > bValue) {
-            return sortDirection.value;
-        } else {
+        // if column percentage_total, sort by number
+        if (column === 'percentage_total') {
+            const aPercentage = Number(aValue);
+            const bPercentage = Number(bValue);
+
+            console.log(aPercentage, bPercentage);
+            if (aPercentage < bPercentage) {
+                return -sortDirection.value;
+            }
+            if (aPercentage > bPercentage) {
+                return sortDirection.value;
+            }
             return 0;
         }
 
+        if (aValue < bValue) {
+            return -sortDirection.value;
+        }
+        if (aValue > bValue) {
+            return sortDirection.value;
+        }
+        return 0;
     });
 };
+
+watch(() => botStatusStore.status, (newStatus) => {
+  botStatus.value = newStatus;
+});
 </script>
 
 <style scoped>
@@ -220,5 +254,10 @@ th:hover {
 
 .icon {
     padding-left: 3px;
+}
+
+.grey-table {
+    background-color: #ccc;
+    filter: grayscale(100%) blur(2px);
 }
 </style>

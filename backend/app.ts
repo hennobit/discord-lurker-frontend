@@ -1,13 +1,8 @@
 import express, { Request, Response } from 'express';
 import sqlite3 from 'sqlite3';
 import cors from 'cors';
-
-interface User {
-    username: string;
-    status: string;
-    user_id: number;
-    last_online: string;
-}
+import { User } from './interfaces/User';
+import { Heartbeat } from './interfaces/Heartbeat';
 
 const app = express();
 const db = new sqlite3.Database('../database/user_info.db');
@@ -23,7 +18,7 @@ app.get('/users', (req: Request, res: Response<User[]>) => {
          LEFT JOIN online_status_time ost ON ui.user_id = ost.user_id AND ui.server_id = ost.server_id
          WHERE ui.server_id = 453616970940809248 
          ORDER BY vci.total_time DESC`,
-         // erstmal nur für den "FLYV"-Server
+        // erstmal nur für den "FLYV"-Server
         (err, rows) => {
             if (err) {
                 console.error(err);
@@ -33,6 +28,32 @@ app.get('/users', (req: Request, res: Response<User[]>) => {
             }
         }
     );
+});
+
+app.get('/heartbeat', (req: Request, res: Response) => {
+    console.log('GET /heartbeat');
+    db.get<Heartbeat>('SELECT last_heartbeat FROM heartbeat ORDER BY id DESC LIMIT 1', (err, row) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Fehler beim Abfragen des heartbeats');
+            return;
+        }
+        if (row) {
+            const lastHeartbeat = new Date(row.last_heartbeat);
+            const now = new Date();
+            const difference = Math.abs(now.getTime() - lastHeartbeat.getTime()) / 1000;
+
+            if (difference <= 7205) {
+                res.json({ status: 'online' });
+                return;
+            }
+
+            res.json({ status: 'offline' });
+            return;
+        }
+
+        res.json({ status: 'Keine Daten in der heartbeat-Tabelle' });
+    });
 });
 
 app.listen(3000, () => {
