@@ -76,7 +76,7 @@ const sortDirection = ref<number>(1); // Die Sortierrichtung (1 für aufsteigend
 const botStatusStore = useBotStatusStore();
 const botStatus = ref(botStatusStore.status);
 
-let manualSort: boolean = false;
+let manualSort: boolean = false
 
 onMounted(() => {
     getUserData();
@@ -93,18 +93,17 @@ function getUserData() {
         })
         .then((data) => {
             // Beide füllen. users als Cache und filteredUsers als Filter
+            manualSort = false
             users.value = data;
             users.value.forEach(user => {
                 const percentage = Math.round(user.total_time / (user.online_total + user.idle_total + user.dnd_total) * 100);
                 user.percentage_total = percentage ? percentage : 0;
             });
+
             filteredUsers.value = [...users.value];
-
-            manualSort = false;
-            sortTable(sortColumn.value as keyof User);
+            
             getFilteredUsers();
-
-            console.log(users.value);
+            sortTable(sortColumn.value as keyof User);
         })
         .catch((error) => {
             console.error('Error fetching data:', error);
@@ -142,6 +141,7 @@ function getFilteredUsers() {
 }
 
 function sortTable(column: keyof User) {
+    console.log(sortColumn.value, column, sortDirection.value)
     if (sortColumn.value === column) {
         if (manualSort) {
             sortDirection.value = -sortDirection.value;
@@ -151,7 +151,6 @@ function sortTable(column: keyof User) {
         sortDirection.value = 1;
     }
 
-    manualSort = true;
     filteredUsers.value.sort((a, b) => {
         const aValue = String(a[column]);
         const bValue = String(b[column]);
@@ -193,6 +192,7 @@ function sortTable(column: keyof User) {
         }
         return 0;
     });
+    manualSort = true
 };
 
 watch(() => botStatusStore.status, (newStatus) => {
