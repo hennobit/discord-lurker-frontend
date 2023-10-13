@@ -16,8 +16,7 @@ app.get('/users', (req: Request, res: Response<User[]>) => {
          FROM user_info ui
          LEFT JOIN voice_channel_info vci ON ui.user_id = vci.user_id AND ui.server_id = vci.server_id
          LEFT JOIN online_status_time ost ON ui.user_id = ost.user_id AND ui.server_id = ost.server_id
-         WHERE ui.server_id = 453616970940809248 
-         ORDER BY vci.total_time DESC`,
+         WHERE ui.server_id = 453616970940809248`,
         // erstmal nur für den "FLYV"-Server
         (err, rows) => {
             if (err) {
