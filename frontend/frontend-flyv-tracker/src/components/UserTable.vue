@@ -141,7 +141,6 @@ function getFilteredUsers() {
 }
 
 function sortTable(column: keyof User) {
-    console.log(sortColumn.value, column, sortDirection.value)
     if (sortColumn.value === column) {
         if (manualSort) {
             sortDirection.value = -sortDirection.value;
@@ -152,33 +151,19 @@ function sortTable(column: keyof User) {
     }
 
     filteredUsers.value.sort((a, b) => {
-        const aValue = String(a[column]);
-        const bValue = String(b[column]);
+        const aValue = a[column];
+        const bValue = b[column];
 
         if (column === 'status') {
             const statusOrder = ['online', 'idle', 'dnd', 'offline'];
-            const aStatusIndex = statusOrder.indexOf(aValue);
-            const bStatusIndex = statusOrder.indexOf(bValue);
+
+            const aStatusIndex = statusOrder.indexOf(String(aValue));
+            const bStatusIndex = statusOrder.indexOf(String(bValue));
 
             if (aStatusIndex < bStatusIndex) {
                 return -sortDirection.value;
             }
             if (aStatusIndex > bStatusIndex) {
-                return sortDirection.value;
-            }
-            return 0;
-        }
-
-        // if column percentage_total, sort by number
-        if (column === 'percentage_total') {
-            const aPercentage = Number(aValue);
-            const bPercentage = Number(bValue);
-
-            console.log(aPercentage, bPercentage);
-            if (aPercentage < bPercentage) {
-                return -sortDirection.value;
-            }
-            if (aPercentage > bPercentage) {
                 return sortDirection.value;
             }
             return 0;
