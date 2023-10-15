@@ -1,7 +1,7 @@
 <template>
     <div id="table-container">
         <input type="text" id="filter-bar" placeholder="Filter" v-model="filterText" @input="() => getFilteredUsers()">
-        <table :class="botStatus === '🔴' ? 'grey-table' : ''">
+        <table :class="botStatus === 'offline' ? 'grey-table' : ''">
             <thead>
                 <tr>
                     <th @click="sortTable('username')">Username <font-awesome-icon icon="fa-solid fa-sort" class="icon" />
