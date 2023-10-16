@@ -1,5 +1,6 @@
 import datetime
 from enums import MicState
+from logger import log
 
 
 def get_mic_state(member) -> str:
@@ -14,6 +15,16 @@ def get_mic_state(member) -> str:
 
     return MicState.UNMUTED.value
 
-def date_string_to_date(time_str: str) -> datetime.datetime:
-    return datetime.datetime.strptime(
-        time_str, '%Y-%m-%d %H:%M:%S.%f')
+def date_string_to_date(time_str: str) -> datetime:
+    # issue #6. occurred one time. I don't know why and I couldn't recreate it
+    try:
+        # try to use the format with microseconds
+        return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S.%f')
+    except ValueError:
+        try:
+            # if that fails, try to use the format without microseconds
+            log('Failed to parse date string with microseconds. Trying without microseconds.')
+            return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            # if that fails, return None
+            return None
