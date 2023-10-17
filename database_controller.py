@@ -54,7 +54,6 @@ def update_heartbeat():
     args = (datetime.datetime.utcnow(),)
     c.execute(query, args)
     conn.commit()
-    logger.heartbeat_logger.info('Updated heartbeat')
 
 def user_exists(user_id, server_id):
     """Funktion zum Überprüfen, ob ein Benutzer in der Datenbank existiert"""
