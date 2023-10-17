@@ -1,6 +1,6 @@
 import sqlite3
 import datetime
-from logger import log
+import logger
 from utils import date_string_to_date, get_mic_state
 
 conn = sqlite3.connect('database/user_info.db')
@@ -54,7 +54,7 @@ def update_heartbeat():
     args = (datetime.datetime.utcnow(),)
     c.execute(query, args)
     conn.commit()
-    log('Updated heartbeat')
+    logger.heartbeat_logger.info('Updated heartbeat')
 
 def user_exists(user_id, server_id):
     """Funktion zum Überprüfen, ob ein Benutzer in der Datenbank existiert"""
@@ -222,8 +222,6 @@ def update_online_status_time(before=None, after=None, user_id=1, status='', ini
                     WHERE user_id = ?''', (time_diff, now, user_id))
         conn.commit()
         return
-
-    log(f'{before} changed status from {before.status} to {after.status}')
 
     c.execute('''UPDATE user_info
                      SET status = ?

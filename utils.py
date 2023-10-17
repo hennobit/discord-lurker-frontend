@@ -1,6 +1,6 @@
-import datetime
+from datetime import datetime
 from enums import MicState
-from logger import log
+import logger
 
 
 def get_mic_state(member) -> str:
@@ -23,7 +23,7 @@ def date_string_to_date(time_str: str) -> datetime:
     except ValueError:
         try:
             # if that fails, try to use the format without microseconds
-            log('Failed to parse date string with microseconds. Trying without microseconds.')
+            logger.bot_logger.error('Failed to parse date string with microseconds. Trying without microseconds.')
             return datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
         except ValueError:
             # if that fails, return None
