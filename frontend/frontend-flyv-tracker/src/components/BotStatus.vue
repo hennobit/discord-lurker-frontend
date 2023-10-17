@@ -2,12 +2,12 @@
     <p>
         Bot is <span class="info">{{ botStatus }}</span> and running since
         <span class="info">{{ runningSince }}</span> with
-        <span class="info-downtime" @mouseenter="showDowntimeDetails = true" @mouseleave="showDowntimeDetails = false">2
+        <span class="info-downtime" @mouseenter="showDowntimeDetails = true" @mouseleave="showDowntimeDetails = false">{{ downtimes.length  }}
             <div id="downtime-div" v-if="showDowntimeDetails" @mouseenter="showDowntimeDetails = true"
                 @mouseleave="showDowntimeDetails = false">
-                <p>
-                    1. Downtime 14.10.2021 12:00 - 14.10.2021 13:00<br>
-                    2. Downtime 14.10.2021 14:00 - 14.10.2021 15:00</p>
+                <p v-for="(downtime, index) in downtimes" class="downtime-time">
+                    {{ index + 1}}. {{ downtime.from }} - {{ downtime.to }}
+                </p>
             </div>
         </span>
         downtimes
@@ -22,6 +22,7 @@ const botStatusStore = useBotStatusStore();
 const botStatus = ref(botStatusStore.status);
 const runningSince = ref('');
 const showDowntimeDetails = ref(false);
+const downtimes = ref([] as { from: string, to: string }[]);
 
 watch(() => botStatusStore.status, (newStatus) => {
     botStatus.value = newStatus;
@@ -46,18 +47,29 @@ async function getRunningSinceDate(): Promise<void> {
     await fetch('http://localhost:3000/runningsince')
         .then(response => response.json())
         .then(data => {
-            console.log(data);
             runningSince.value = data.runningSince;
-            console.log(runningSince.value);
         })
         .catch(error => {
             console.error('Fehler bei der Anfrage an /runningsince:', error);
         });
 };
 
+async function getDowntimes(): Promise<void> {
+    await fetch('http://localhost:3000/downtimes')
+        .then(response => response.json())
+        .then(data => {
+            downtimes.value = data.downtimes;
+            console.log(downtimes.value);
+        })
+        .catch(error => {
+            console.error('Fehler bei der Anfrage an /downtimes:', error);
+        });
+};
+
 onMounted(() => {
     getBotStatus();
     getRunningSinceDate();
+    getDowntimes();
     setInterval(getBotStatus, 5000);
 });
 
@@ -84,5 +96,9 @@ onMounted(() => {
     padding: 0.5rem;
     border-radius: 0.4rem;
     z-index: 1;
+}
+
+.downtime-time {
+    font-weight: bolder;
 }
 </style>

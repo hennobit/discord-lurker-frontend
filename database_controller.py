@@ -1,6 +1,5 @@
 import sqlite3
 import datetime
-import logger
 from utils import date_string_to_date, get_mic_state
 
 conn = sqlite3.connect('database/user_info.db')
@@ -47,13 +46,21 @@ c.execute('''CREATE TABLE IF NOT EXISTS heartbeat (
             last_heartbeat TEXT
             );''')
 
+c.execute('''CREATE TABLE IF NOT EXISTS downtime (
+            id INTEGER PRIMARY KEY,
+            "from" DATETIME,
+            "to" DATETIME
+             );''')
+
+
 def update_heartbeat():
     """Function to update the heartbeat table"""
-    
+
     query = '''INSERT INTO heartbeat (last_heartbeat) VALUES (?)'''
     args = (datetime.datetime.utcnow(),)
     c.execute(query, args)
     conn.commit()
+
 
 def user_exists(user_id, server_id):
     """Funktion zum Überprüfen, ob ein Benutzer in der Datenbank existiert"""
