@@ -3,6 +3,7 @@ import { db } from '../database/database';
 import { Heartbeat } from '../interfaces/Heartbeat';
 import { Downtime } from '../interfaces/Downtime';
 
+const HEARTBEAT_TIME =  5;
 let consecutiveHeartbeatFails = 0;
 
 export class HeartbeatController {
@@ -19,8 +20,7 @@ export class HeartbeatController {
                 const now = new Date();
                 const difference = Math.abs(now.getTime() - lastHeartbeat.getTime()) / 1000;
 
-                // this condition won't work anymore when daylight saving time ends. pls fix.
-                if (difference <= 7205) {
+                if (difference <= HEARTBEAT_TIME) {
                     consecutiveHeartbeatFails = 0;
                     res.json({ status: 'online' });
                     HeartbeatController.handleHeartbeatStatusChange(false);
