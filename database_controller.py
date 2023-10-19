@@ -57,7 +57,6 @@ def update_heartbeat():
     """Function to update the heartbeat table"""
 
     query = '''INSERT INTO heartbeat (last_heartbeat) VALUES (?)'''
-    print(datetime.datetime.now(), datetime.datetime.utcnow())
     args = (datetime.datetime.now(),)
     c.execute(query, args)
     conn.commit()
