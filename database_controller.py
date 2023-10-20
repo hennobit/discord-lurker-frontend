@@ -113,14 +113,16 @@ def update_user_data(member, before, after, update_join_time=True, update_state_
         query += ', last_join_time = ?'
     if update_state_change_time:
         query += ', last_state_change_time = ?'
-    query += ' WHERE user_id = ?'
+    query += ' WHERE user_id = ? AND server_id = ?'
 
     args = [str(member.status)]
     if update_join_time:
         args.append(datetime.datetime.utcnow())
     if update_state_change_time:
         args.append(datetime.datetime.utcnow())
+        
     args.append(member.id)
+    args.append(member.guild.id)
     c.execute(query, tuple(args))
 
     # Voice-Channel-Status aktualisieren
@@ -142,8 +144,8 @@ def update_mute_data(member, before, after):
 
     current_state = get_mic_state(member)
 
-    query = f'SELECT current_state, last_state_change_time FROM user_info WHERE user_id = ?'
-    result = c.execute(query, (member.id,)).fetchone()
+    query = f'SELECT current_state, last_state_change_time FROM user_info WHERE user_id = ? AND server_id = ?'
+    result = c.execute(query, (member.id, member.guild.id)).fetchone()
 
     previous_state, last_state_change_time_str = result
 
@@ -175,12 +177,13 @@ def update_mute_data(member, before, after):
     if before is not None:
         query += f', {field_name} = {field_name} + ?'
 
-    query += ' WHERE user_id = ?'
+    query += ' WHERE user_id = ? AND server_id = ?'
 
     args = [datetime.datetime.utcnow(), current_state]
     if before is not None:
         args.append(time_spent_in_previous_state)
     args.append(member.id)
+    args.append(member.guild.id)
     c.execute(query, tuple(args))
 
     conn.commit()
@@ -263,7 +266,7 @@ def update_voice_channel_data(member, before, after, initial_scan=False):
         # if the bot was offline for a certain period of time.
         c.execute('''UPDATE user_info
                     SET last_state_change_time = ?
-                    WHERE user_id = ?''', (datetime.datetime.utcnow(), member.id))
+                    WHERE user_id = ? AND server_id = ?''', (datetime.datetime.utcnow(), member.id, member.guild.id))
         conn.commit()
         return
 
@@ -305,7 +308,6 @@ def update_voice_channel_data(member, before, after, initial_scan=False):
             SET total_time = total_time + ?
             WHERE user_id = ? AND server_id = ?'''
 
-            print(time_spent_in_channel, member.name)
             args = (time_spent_in_channel, member.id, member.guild.id)
             c.execute(query, args)
 
