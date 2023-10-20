@@ -5,9 +5,10 @@
         <span class="info-downtime" @mouseenter="showDowntimeDetails = true" @mouseleave="showDowntimeDetails = false">{{ downtimes.length  }}
             <div id="downtime-div" v-if="showDowntimeDetails" @mouseenter="showDowntimeDetails = true"
                 @mouseleave="showDowntimeDetails = false">
-                <p v-for="(downtime, index) in downtimes" class="downtime-time">
+                <p v-if="downtimes.length > 0" v-for="(downtime, index) in downtimes" class="downtime-time">
                     {{ index + 1}}. {{ downtime.from }} - {{ downtime.to }}
                 </p>
+                <p v-else>No downtimes.</p>
             </div>
         </span>
         downtimes
@@ -87,12 +88,12 @@ onMounted(() => {
 }
 
 #downtime-div {
+    white-space: nowrap;
     position: absolute;
     top: 20px;
     left: 0;
     color: white;
     background-color: rgb(255, 90, 90);
-    width: 21.3rem;
     padding: 0.5rem;
     border-radius: 0.4rem;
     z-index: 1;
