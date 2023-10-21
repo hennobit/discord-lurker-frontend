@@ -50,6 +50,10 @@
 import { ref, onMounted, watch } from 'vue';
 import { useBotStatusStore } from '@/stores/botStatusStore';
 
+const props = defineProps<{
+    serverId: string;
+}>();
+
 interface User {
     user_id: number;
     server_id: number;
@@ -71,20 +75,23 @@ interface User {
 const users = ref<User[]>([]);
 const filteredUsers = ref<User[]>([]);
 const filterText = ref("");
-const sortColumn = ref<string>(''); // Die ausgewählte Spalte zum Sortieren
-const sortDirection = ref<number>(1); // Die Sortierrichtung (1 für aufsteigend, -1 für absteigend)
+const sortColumn = ref<string>(''); // The column to sort by
+const sortDirection = ref<number>(1); // The direction to sort by (1 = ascending, -1 = descending)
 const botStatusStore = useBotStatusStore();
 const botStatus = ref(botStatusStore.status);
 
 let manualSort: boolean = false
 
-onMounted(() => {
-    getUserData();
-    setInterval(getUserData, 5000);
-});
-
-function getUserData() {
-    fetch('http://localhost:3000/users')
+function getUserData(): void {
+    const requestData = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ serverId: props.serverId })
+    };
+    console.log('Fetching data with request: ', requestData.body, '...');
+    fetch('http://localhost:3000/users', requestData)
         .then((response) => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -182,6 +189,11 @@ function sortTable(column: keyof User) {
 
 watch(() => botStatusStore.status, (newStatus) => {
     botStatus.value = newStatus;
+});
+
+onMounted(() => {
+    getUserData();
+    setInterval(getUserData, 5000);
 });
 </script>
 

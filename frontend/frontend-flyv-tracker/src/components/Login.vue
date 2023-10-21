@@ -9,8 +9,7 @@
 
 <script lang="ts" setup>
 function loginWithDiscord() {
-  window.location.href = 'https://discord.com/api/oauth2/authorize?client_id=1160542994269741087&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fauth&response_type=code&scope=identify%20guilds';
-}
+  window.location.href = 'https://discord.com/api/oauth2/authorize?client_id=1160542994269741087&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fauth&response_type=code&scope=identify%20guilds%20guilds.members.read'}
 </script>
 
 

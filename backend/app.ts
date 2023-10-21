@@ -4,10 +4,12 @@ import heartbeatRouter from './routes/heartbeat';
 import runningSinceRouter from './routes/runningSince';
 import usersRouter from './routes/users';
 import downtimes from './routes/downtimes';
+import bodyParser from 'body-parser';
 
 const app = express();
 
 app.use(cors());
+app.use(bodyParser.json());
 
 app.use(heartbeatRouter)
 app.use(runningSinceRouter)

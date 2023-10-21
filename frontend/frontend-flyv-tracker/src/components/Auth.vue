@@ -7,6 +7,9 @@
 </template>
 
 <script setup lang="ts">
+import router from '@/router';
+import { useAuthStore } from '@/stores/authStore';
+import { useUserStore } from '@/stores/userStore';
 import { ref, onMounted } from 'vue';
 
 const isAuthenticating = ref(false);
@@ -41,8 +44,13 @@ async function auth() {
                 isAuthenticated.value = true;
                 isAuthenticating.value = false;
 
-                await fetchUserInfo(access);
-                await fetchGuilds(access);
+                const userInfo = await fetchUserInfo(access);
+                if (userInfo) {
+                    useUserStore().setUserData(userInfo);
+                }
+
+                useAuthStore().setAccessToken(access);
+                router.push('/dashboard');
 
             } else {
                 console.error('Fehler beim Token-Austausch');
@@ -55,7 +63,7 @@ async function auth() {
     }
 }
 
-async function fetchUserInfo(access: string) {
+async function fetchUserInfo(access: string): Promise<User | null> {
     const userInfoResponse = await fetch('https://discord.com/api/v10/users/@me', {
         headers: {
             'Authorization': `Bearer ${access}`,
@@ -64,37 +72,13 @@ async function fetchUserInfo(access: string) {
 
     if (userInfoResponse.ok) {
         const userInfo = await userInfoResponse.json();
-
-        console.log(userInfo);
-    } else {
-        console.error('Fehler beim Abrufen der Benutzerinformationen');
-        isAuthenticating.value = false;
+        return userInfo;
     }
+
+    console.error('Fehler beim Abrufen der Benutzerinformationen');
+    isAuthenticating.value = false;
+    return null;
 }
-
-async function fetchGuilds(access: string) {
-    const url = 'https://discord.com/api/v10/users/@me/guilds';
-    try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${access}`,
-            },
-        });
-        if (response.ok) {
-            const guilds = await response.json();
-            console.log('guilds', guilds);
-            return guilds;
-        } else {
-            console.log(response.status, response.statusText);
-            return null;
-        }
-    } catch (error) {
-        console.error('Error', error);
-        return null;
-    }
-};
-
 
 onMounted(async () => {
     await auth();

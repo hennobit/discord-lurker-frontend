@@ -3,6 +3,6 @@ import { UsersController } from '../controllers/UsersController';
 
 const usersRouter = Router();
 
-usersRouter.get('/users', UsersController.handleUsers);
+usersRouter.post('/users', UsersController.handleUsers);
 
 export default usersRouter;
