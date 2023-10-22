@@ -6,6 +6,7 @@ const router = createRouter({
     routes: [
         {
             path: '/auth',
+            name: 'Auth',
             component: () => import('@/views/AuthView.vue')
         },
         {
@@ -31,13 +32,13 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from) => {
-    /*const authStore = useAuthStore();
-    const isAuthenticated = authStore.isAuthenticated;
+    const authStore = useAuthStore();
+    const isAuthenticated = authStore.accessToken !== '';
 
     console.log('isAuthenticated', isAuthenticated);
-    if (!isAuthenticated && to.name !== 'Login') {
+    if (!isAuthenticated && to.name !== 'Login' && to.name !== 'Auth') {
         return { name: 'Login' };
-    }*/
+    }
 });
 
 export default router;

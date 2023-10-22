@@ -2,9 +2,9 @@
   <div>
     <p>Hey, {{ userName }}!</p>
 
-    <h2>Deine Server:</h2>
+    <h2>Your Servers:</h2>
     <div class="server-grid">
-      <ServerCard v-for="server in servers" :key="server.id" :server="server" />
+      <ServerCard v-for="guild in guilds" :key="guild.id" :server="guild" :active-bot="guild.isBotPresent" />
     </div>
   </div>
 </template>
@@ -14,12 +14,11 @@ import type { Server } from '@/interfaces/Server';
 import { useUserStore } from '@/stores/userStore';
 import ServerCard from '@/components/ServerCard.vue';
 import { useAuthStore } from '@/stores/authStore';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
+const guilds = ref<Server[]>([]);
 const userStore = useUserStore();
 const userName = userStore.global_name;
-
-const servers = ref<Server[]>([]);
 
 async function fetchGuilds(access: string): Promise<Server[] | null> {
   const url = 'https://discord.com/api/v10/users/@me/guilds';
@@ -31,11 +30,10 @@ async function fetchGuilds(access: string): Promise<Server[] | null> {
       },
     });
     if (response.ok) {
-      const guilds: Server[] = await response.json();
-      console.log('guilds', guilds);
-      return guilds;
+      const servers: Server[] = await response.json();
+      guilds.value = servers;
+      await getGuildsWithBotOnIt();
     }
-    console.log(response.status, response.statusText);
     return null;
 
   } catch (error) {
@@ -44,42 +42,54 @@ async function fetchGuilds(access: string): Promise<Server[] | null> {
   }
 }
 
-/*async function checkBotMembership(token: string, server: Server) {
-  const url = `https://discord.com/api/v10/guilds/${server.id}/members/@me`;
-
+async function getGuildsWithBotOnIt(): Promise<string[]> {
+  const serverIds = guilds.value.map((guild) => guild.id);
   try {
+    const url = (import.meta.env.DEV ? import.meta.env.VITE_IP_LOCALHOST : import.meta.env.VITE_IP_PROD) + "/checkservers";
     const response = await fetch(url, {
-      method: 'GET',
+      method: 'POST',
       headers: {
-        Authorization: `Bot ${token}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        serverIds,
+      }),
     });
 
     if (response.ok) {
-      console.log('Bot ist Mitglied auf Server:', server.name);
-      return;
-    }
-    if (response.status === 403) {
-      console.log('Bot ist kein Mitglied auf Server:', server.name);
-      return;
-    }
+      const responseJson = await response.json();
+      const serverIds: string[] = responseJson.serverIds;
+      guilds.value.forEach((guild) => {
+        if (serverIds.includes(guild.id)) {
+          guild.isBotPresent = true;
+        } else {
+          guild.isBotPresent = false;
+        }
+      });
 
-    console.error('Fehler beim Überprüfen der Mitgliedschaft auf Server:', server.name);
+      // sort guilds by bot presence
+      guilds.value.sort((a, b) => {
+        if (a.isBotPresent && !b.isBotPresent) {
+          return -1; 
+        } else if (!a.isBotPresent && b.isBotPresent) {
+          return 1; 
+        } else {
+          return 0; 
+        }
+      });
+
+      return responseJson;
+    }
 
   } catch (error) {
-    console.error('Fehler beim Überprüfen der Mitgliedschaft auf Server:', server.name, error);
+    console.error('Error', error);
   }
-}*/
+  return [];
+}
 
 onMounted(async () => {
-  const token = useAuthStore().accessToken;
-  const loadedServers = await fetchGuilds(token);
-  if (loadedServers) {
-    servers.value = loadedServers;
-    /*for (const server of servers.value) {
-      await checkBotMembership(token, server);
-    }*/
-  }
+  await fetchGuilds(useAuthStore().accessToken);
+  await getGuildsWithBotOnIt();
 });
 </script>
 

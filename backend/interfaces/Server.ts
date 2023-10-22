@@ -5,5 +5,4 @@ export interface Server {
     owner: boolean;
     permissions: string;
     features: string[];
-    isBotPresent: boolean;
   }

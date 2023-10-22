@@ -1,20 +1,19 @@
 <template>
-    <div class="server-card" @click="goToUserTable">
+    <div class="server-card" @click="goToUserTable" :class="{ 'inactive-server': !activeBot }">
         <img :src="getServerIconUrl()" alt="Server Icon" id="server-icon">
         <p id="server-name">{{ server.name }}</p>
     </div>
 </template>
-  
+    
 <script setup lang="ts">
 import type { Server } from '@/interfaces/Server';
 import router from '@/router';
-import { ref } from 'vue';
+import { defineProps } from 'vue';
 
 const props = defineProps<{
-    server: Server;
+    server: Server,
+    activeBot: boolean;
 }>();
-
-const server = ref(props.server);
 
 function getServerIconUrl() {
     if (!props.server.icon) {
@@ -27,14 +26,17 @@ function getServerIconUrl() {
 }
 
 function goToUserTable() {
+    if (!props.activeBot) {
+        return;
+    }
     router.push({
         name: 'Data',
-        params: { serverId: server.value.id }, 
-        query: { serverName: server.value.name } 
+        params: { serverId: props.server.id },
+        query: { serverName: props.server.name }
     });
 }
 </script>
-  
+    
 <style scoped>
 .server-card {
     border: 1px solid #ddd;
@@ -55,7 +57,7 @@ function goToUserTable() {
 
 #server-icon {
     border-radius: 1rem;
-    box-shadow: 0 0 15px rgb(138, 138, 138, 0.7);
+    box-shadow: 0 0 15px rgba(138, 138, 138, 0.7);
 }
 
 #server-name {
@@ -66,6 +68,12 @@ function goToUserTable() {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+.inactive-server {
+    background-color: #ccc;
+    filter: grayscale(50%) blur(1px);
+    cursor: not-allowed;
 }
 </style>
   

@@ -50,7 +50,14 @@ async function auth() {
                 }
 
                 useAuthStore().setAccessToken(access);
+
+                // delete the code from the url
+                if (window.location.search.includes('code=')) {
+                    const newUrl = window.location.href.split('?')[0] + '#/dashboard';
+                    window.history.replaceState({}, document.title, newUrl);
+                }
                 router.push('/dashboard');
+
 
             } else {
                 console.error('Fehler beim Token-Austausch', tokenResponse);
@@ -84,7 +91,7 @@ async function getSecret(): Promise<string> {
     const url = (import.meta.env.DEV ? import.meta.env.VITE_IP_LOCALHOST : import.meta.env.VITE_IP_PROD) + "/secret";
     const response = await fetch(url);
     const secret = response.text();
-    return secret;   
+    return secret;
 }
 
 onMounted(async () => {

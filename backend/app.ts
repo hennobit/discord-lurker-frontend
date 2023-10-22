@@ -4,6 +4,7 @@ import heartbeatRouter from './routes/heartbeat';
 import runningSinceRouter from './routes/runningSince';
 import usersRouter from './routes/users';
 import downtimes from './routes/downtimes';
+import checkServers from './routes/checkServers';
 import bodyParser from 'body-parser';
 import fs from 'fs';
 const app = express();
@@ -15,6 +16,7 @@ app.use(heartbeatRouter);
 app.use(runningSinceRouter);
 app.use(usersRouter);
 app.use(downtimes);
+app.use(checkServers);
 
 app.get('/secret', (req, res) => {
     fs.readFile('not_a_secret.txt', 'utf8', (err, data) => {

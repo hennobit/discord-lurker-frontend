@@ -1,6 +1,6 @@
 <template>
     <div id="container">
-        <h1>{{ serverName }}-Tracker</h1>
+        <h1>{{ serverName }}</h1>
         <BotStatus></BotStatus>
         <UserTable :server-id="serverId"></UserTable>
     </div>
