@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <p>Hey, {{ userName }}!</p>
+  <div id="container">
+    <h1 id="greetings">Hey, {{ userName }}!</h1>
 
     <h2>Your Servers:</h2>
     <div class="server-grid">
@@ -14,13 +14,16 @@ import type { Server } from '@/interfaces/Server';
 import { useUserStore } from '@/stores/userStore';
 import ServerCard from '@/components/ServerCard.vue';
 import { useAuthStore } from '@/stores/authStore';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useGuildsStore } from '@/stores/guildsStore';
 
 const guilds = ref<Server[]>([]);
 const userStore = useUserStore();
 const userName = userStore.global_name;
 
-async function fetchGuilds(access: string): Promise<Server[] | null> {
+async function fetchGuilds(access: string) {
+  guilds.value = useGuildsStore().guilds;
+
   const url = 'https://discord.com/api/v10/users/@me/guilds';
   try {
     const response = await fetch(url, {
@@ -31,14 +34,17 @@ async function fetchGuilds(access: string): Promise<Server[] | null> {
     });
     if (response.ok) {
       const servers: Server[] = await response.json();
+      if (servers.length === guilds.value.length) {
+        return;
+      }
       guilds.value = servers;
       await getGuildsWithBotOnIt();
     }
-    return null;
+    return;
 
   } catch (error) {
     console.error('Error', error);
-    return null;
+    return;
   }
 }
 
@@ -70,14 +76,15 @@ async function getGuildsWithBotOnIt(): Promise<string[]> {
       // sort guilds by bot presence
       guilds.value.sort((a, b) => {
         if (a.isBotPresent && !b.isBotPresent) {
-          return -1; 
+          return -1;
         } else if (!a.isBotPresent && b.isBotPresent) {
-          return 1; 
+          return 1;
         } else {
-          return 0; 
+          return 0;
         }
       });
 
+      useGuildsStore().setGuilds(guilds.value);
       return responseJson;
     }
 
@@ -94,11 +101,23 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+#container {
+  padding: 5rem;
+  text-align: left;
+}
+
 .server-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 20px;
-  padding: 5rem;
+  margin-top: 2rem;
+}
+
+#greetings {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: Helvetica;
+  letter-spacing: 1px;
 }
 </style>
 

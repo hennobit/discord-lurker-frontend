@@ -17,4 +17,12 @@ const props = defineProps<{
 
 </script>
 
-<style scoped></style>
+<style scoped>
+#container {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+</style>
