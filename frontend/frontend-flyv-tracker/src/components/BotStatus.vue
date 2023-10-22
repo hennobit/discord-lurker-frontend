@@ -30,7 +30,8 @@ watch(() => botStatusStore.status, (newStatus) => {
 });
 
 async function getBotStatus(): Promise<void> {
-    await fetch('http://localhost:3000/heartbeat')
+    const url = (import.meta.env.DEV ? import.meta.env.VITE_IP_LOCALHOST : import.meta.env.VITE_IP_PROD) + "/heartbeat";
+    await fetch(url)
         .then(response => response.json())
         .then(data => {
             if (data.status === 'online') {
@@ -45,7 +46,8 @@ async function getBotStatus(): Promise<void> {
 };
 
 async function getRunningSinceDate(): Promise<void> {
-    await fetch('http://localhost:3000/runningsince')
+    const url = (import.meta.env.DEV ? import.meta.env.VITE_IP_LOCALHOST : import.meta.env.VITE_IP_PROD) + "/runningsince";
+    await fetch(url)
         .then(response => response.json())
         .then(data => {
             runningSince.value = data.runningSince;
@@ -56,7 +58,8 @@ async function getRunningSinceDate(): Promise<void> {
 };
 
 async function getDowntimes(): Promise<void> {
-    await fetch('http://localhost:3000/downtimes')
+    const url = (import.meta.env.DEV ? import.meta.env.VITE_IP_LOCALHOST : import.meta.env.VITE_IP_PROD) + "/downtimes";
+    await fetch(url)
         .then(response => response.json())
         .then(data => {
             downtimes.value = data.downtimes;

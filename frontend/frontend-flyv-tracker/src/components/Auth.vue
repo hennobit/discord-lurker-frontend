@@ -22,11 +22,11 @@ async function auth() {
 
         try {
             const formData = new URLSearchParams({
-                client_id: import.meta.env.VITE_CLIENT_ID,
-                client_secret: import.meta.env.VITE_CLIENT_SECRET,
+                client_id: "1160542994269741087",
+                client_secret: await getSecret(),
                 grant_type: 'authorization_code',
                 code: code.toString(),
-                redirect_uri: 'http://localhost:5173/auth',
+                redirect_uri: import.meta.env.DEV ? 'http://localhost:5173/#/auth' : 'http://discord-lurker.com/#/auth',
             });
 
             const tokenResponse = await fetch('https://discord.com/api/v10/oauth2/token', {
@@ -53,7 +53,7 @@ async function auth() {
                 router.push('/dashboard');
 
             } else {
-                console.error('Fehler beim Token-Austausch');
+                console.error('Fehler beim Token-Austausch', tokenResponse);
                 isAuthenticating.value = false;
             }
         } catch (error) {
@@ -63,7 +63,7 @@ async function auth() {
     }
 }
 
-async function fetchUserInfo(access: string): Promise<User | null> {
+async function fetchUserInfo(access: string): Promise<DiscordUser | null> {
     const userInfoResponse = await fetch('https://discord.com/api/v10/users/@me', {
         headers: {
             'Authorization': `Bearer ${access}`,
@@ -78,6 +78,13 @@ async function fetchUserInfo(access: string): Promise<User | null> {
     console.error('Fehler beim Abrufen der Benutzerinformationen');
     isAuthenticating.value = false;
     return null;
+}
+
+async function getSecret(): Promise<string> {
+    const url = (import.meta.env.DEV ? import.meta.env.VITE_IP_LOCALHOST : import.meta.env.VITE_IP_PROD) + "/secret";
+    const response = await fetch(url);
+    const secret = response.text();
+    return secret;   
 }
 
 onMounted(async () => {

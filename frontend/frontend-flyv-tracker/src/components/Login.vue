@@ -9,7 +9,13 @@
 
 <script lang="ts" setup>
 function loginWithDiscord() {
-  window.location.href = 'https://discord.com/api/oauth2/authorize?client_id=1160542994269741087&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fauth&response_type=code&scope=identify%20guilds%20guilds.members.read'}
+  const url = import.meta.env.DEV ?
+  'https://discord.com/api/oauth2/authorize?client_id=1160542994269741087&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2F%23%2Fauth&response_type=code&scope=identify%20guilds%20guilds.members.read'
+  :
+  'https://discord.com/api/oauth2/authorize?client_id=1160542994269741087&redirect_uri=http%3A%2F%2Fdiscord-lurker.com%2F%23%2Fauth&response_type=code&scope=guilds%20identify%20guilds.members.read'
+
+  window.location.href = url;
+}
 </script>
 
 

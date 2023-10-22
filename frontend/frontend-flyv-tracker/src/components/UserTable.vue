@@ -49,28 +49,11 @@
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue';
 import { useBotStatusStore } from '@/stores/botStatusStore';
+import type { User } from '@/interfaces/User';
 
 const props = defineProps<{
     serverId: string;
 }>();
-
-interface User {
-    user_id: number;
-    server_id: number;
-    username: string;
-    status: string;
-    unmuted_time: number;
-    total_time_muted: number;
-    total_time_sound_muted: number;
-    voice_channel: string;
-    total_time: number;
-    online_total: number;
-    offline_total: number;
-    idle_total: number;
-    dnd_total: number;
-    last_status_change: string;
-    percentage_total: number;
-}
 
 const users = ref<User[]>([]);
 const filteredUsers = ref<User[]>([]);
@@ -90,8 +73,8 @@ function getUserData(): void {
         },
         body: JSON.stringify({ serverId: props.serverId })
     };
-    console.log('Fetching data with request: ', requestData.body, '...');
-    fetch('http://localhost:3000/users', requestData)
+    const url = (import.meta.env.DEV ? import.meta.env.VITE_IP_LOCALHOST : import.meta.env.VITE_IP_PROD) + "/users";
+    fetch(url, requestData)
         .then((response) => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
