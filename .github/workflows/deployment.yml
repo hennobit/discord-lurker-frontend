@@ -25,12 +25,12 @@ jobs:
               run: npm run build
 
             - name: copy files to server
-              uses: hennobit/discord-lurker-frontend@main
+              uses: appleboy/scp-action@master
               with:
-                    HOST: ${{ secrets.HOST }}
-                    USERNAME: ${{ secrets.USERNAME }}
-                    PASSWORD: ${{ secrets.PASSWORD }}
-                    PORT: ${{ secrets.PORT }}
-                    target: ${{ secrets.TARGET }}
-                    source: "./dist/*"
-                    strip_components: 1
+                host: ${{ secrets.HOST }}
+                username: ${{ secrets.USERNAME }}
+                password: ${{ secrets.PASSWORD }}
+                port: ${{ secrets.PORT }}
+                target: ${{ secrets.TARGET }}
+                source: "./dist/*"
+                strip_components: 1
