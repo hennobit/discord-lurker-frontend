@@ -1,5 +1,5 @@
 <template>
-  <p>moin</p>
+  <p>moin3</p>
   <main>
     <router-view/>
   </main>
