@@ -1,4 +1,5 @@
 <template>
+  <p>moin</p>
   <main>
     <router-view/>
   </main>
