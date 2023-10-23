@@ -1,6 +1,0 @@
-node_modules
-__pycache__
-dc_api_key.txt
-*.log
-*.db
-*.db-journal

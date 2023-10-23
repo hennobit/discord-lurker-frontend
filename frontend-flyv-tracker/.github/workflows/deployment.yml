@@ -25,7 +25,7 @@ jobs:
               run: npm run build
 
             - name: copy files to server
-              uses: hennobit/discord-lurker-frontend@main
+              uses: hennobit/discord-lurker@main
               with:
                     HOST: ${{ secrets.HOST }}
                     USERNAME: ${{ secrets.USERNAME }}
