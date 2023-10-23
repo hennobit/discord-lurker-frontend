@@ -187,6 +187,8 @@ table {
     width: 85%;
     border-style: hidden;
     box-shadow: 0 0 10px 2px #666;
+    white-space: nowrap;
+    overflow-x: scroll;
 }
 
 table th:first-child {
