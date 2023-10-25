@@ -199,6 +199,7 @@ onMounted(() => {
 
 <style scoped>
 table {
+    display: block;
     border-collapse: collapse;
     border-radius: 10px;
     width: 85%;
