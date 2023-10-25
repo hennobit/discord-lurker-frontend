@@ -202,7 +202,7 @@ table {
     display: block;
     border-collapse: collapse;
     border-radius: 10px;
-    width: 85%;
+    width: max-content;
     border-style: hidden;
     box-shadow: 0 0 10px 2px #666;
     white-space: nowrap;
