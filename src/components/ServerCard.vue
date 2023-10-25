@@ -8,7 +8,6 @@
 <script setup lang="ts">
 import type { Server } from '@/interfaces/Server';
 import router from '@/router';
-import { defineProps } from 'vue';
 
 const props = defineProps<{
     server: Server,

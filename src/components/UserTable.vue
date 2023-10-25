@@ -63,7 +63,7 @@ const sortDirection = ref<number>(1); // The direction to sort by (1 = ascending
 const botStatusStore = useBotStatusStore();
 const botStatus = ref(botStatusStore.status);
 
-let manualSort: boolean = false
+let manualSort: boolean = false;
 
 function getUserData(): void {
     const requestData = {
@@ -83,7 +83,7 @@ function getUserData(): void {
         })
         .then((data) => {
             // Beide füllen. users als Cache und filteredUsers als Filter
-            manualSort = false
+            manualSort = false;
             users.value = data;
             users.value.forEach(user => {
                 const percentage = Math.round(user.total_time / (user.online_total + user.idle_total + user.dnd_total) * 100);
@@ -91,7 +91,7 @@ function getUserData(): void {
             });
 
             filteredUsers.value = [...users.value];
-            
+
             getFilteredUsers();
             sortTable(sortColumn.value as keyof User);
         })
@@ -167,8 +167,24 @@ function sortTable(column: keyof User) {
         }
         return 0;
     });
-    manualSort = true
+    manualSort = true;
 };
+
+function handleScroll() {
+    const firstTh = document.querySelector("table th:first-child") as HTMLTableCellElement;
+    const lastTh = document.querySelector("table th:last-child") as HTMLTableCellElement;
+
+    if (firstTh && lastTh) {
+        // 187 is the height of the table header in my case, just testing
+        if (window.scrollY > 187) {
+            firstTh.style.borderTopLeftRadius = "0";
+            lastTh.style.borderTopRightRadius = "0";
+        } else {
+            firstTh.style.borderTopLeftRadius = "10px";
+            lastTh.style.borderTopRightRadius = "10px";
+        }
+    }
+}
 
 watch(() => botStatusStore.status, (newStatus) => {
     botStatus.value = newStatus;
@@ -177,6 +193,7 @@ watch(() => botStatusStore.status, (newStatus) => {
 onMounted(() => {
     getUserData();
     setInterval(getUserData, 5000);
+    window.addEventListener('scroll', handleScroll);
 });
 </script>
 
@@ -217,6 +234,8 @@ th {
     /* IE 10 and IE 11 */
     user-select: none;
     /* Standard syntax */
+    top: 0;
+    position: sticky;
 }
 
 th:hover {
