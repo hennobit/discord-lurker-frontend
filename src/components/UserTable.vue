@@ -202,7 +202,8 @@ table {
     display: block;
     border-collapse: collapse;
     border-radius: 10px;
-    width: max-content;
+    max-width: 100%;
+    height: 80%;
     border-style: hidden;
     box-shadow: 0 0 10px 2px #666;
     white-space: nowrap;
@@ -248,7 +249,8 @@ th:hover {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    width: 100%;
+    max-width: 100%;
+    height: 92vh;
     padding: 2rem;
 }
 
@@ -270,6 +272,6 @@ th:hover {
 
 .grey-table {
     background-color: #ccc;
-    filter: grayscale(100%) blur(2px);
+    filter: grayscale(100%);
 }
 </style>
