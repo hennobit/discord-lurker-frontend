@@ -1,7 +1,7 @@
 <template>
     <div id="table-container">
         <input type="text" id="filter-bar" placeholder="Filter" v-model="filterText" @input="() => getFilteredUsers()">
-        <table id="table" :class="botStatus === 'offline' ? 'grey-table' : ''">
+        <table id="table">
             <thead>
                 <tr>
                     <th @click="sortTable('username')">Username <font-awesome-icon icon="fa-solid fa-sort" class="icon" />
@@ -48,7 +48,6 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue';
-import { useBotStatusStore } from '@/stores/botStatusStore';
 import type { User } from '@/interfaces/User';
 
 const props = defineProps<{
@@ -60,8 +59,6 @@ const filteredUsers = ref<User[]>([]);
 const filterText = ref("");
 const sortColumn = ref<string>(''); // The column to sort by
 const sortDirection = ref<number>(1); // The direction to sort by (1 = ascending, -1 = descending)
-const botStatusStore = useBotStatusStore();
-const botStatus = ref(botStatusStore.status);
 
 let manualSort: boolean = false;
 
@@ -185,11 +182,6 @@ function sortTable(column: keyof User) {
         }
     }
 }*/
-
-watch(() => botStatusStore.status, (newStatus) => {
-    botStatus.value = newStatus;
-});
-
 onMounted(() => {
     getUserData();
     setInterval(getUserData, 5000);
@@ -288,6 +280,4 @@ tr {
 .icon {
     padding-left: 3px;
 }
-
-.grey-table {}
 </style>
