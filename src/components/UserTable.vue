@@ -263,6 +263,7 @@ tr {
     max-width: 100%;
     height: 90vh;
     margin-top: 1.3rem;
+    padding: 0 2rem;
 }
 
 #filter-bar {
