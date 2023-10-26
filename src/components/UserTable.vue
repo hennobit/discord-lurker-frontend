@@ -1,7 +1,7 @@
 <template>
     <div id="table-container">
         <input type="text" id="filter-bar" placeholder="Filter" v-model="filterText" @input="() => getFilteredUsers()">
-        <table :class="botStatus === 'offline' ? 'grey-table' : ''">
+        <table id="table" :class="botStatus === 'offline' ? 'grey-table' : ''">
             <thead>
                 <tr>
                     <th @click="sortTable('username')">Username <font-awesome-icon icon="fa-solid fa-sort" class="icon" />
@@ -170,7 +170,7 @@ function sortTable(column: keyof User) {
     manualSort = true;
 };
 
-function handleScroll() {
+/*function handleScroll() {
     const firstTh = document.querySelector("table th:first-child") as HTMLTableCellElement;
     const lastTh = document.querySelector("table th:last-child") as HTMLTableCellElement;
 
@@ -184,7 +184,7 @@ function handleScroll() {
             lastTh.style.borderTopRightRadius = "10px";
         }
     }
-}
+}*/
 
 watch(() => botStatusStore.status, (newStatus) => {
     botStatus.value = newStatus;
@@ -193,11 +193,11 @@ watch(() => botStatusStore.status, (newStatus) => {
 onMounted(() => {
     getUserData();
     setInterval(getUserData, 5000);
-    window.addEventListener('scroll', handleScroll);
 });
 </script>
 
 <style scoped>
+
 table {
     display: block;
     border-collapse: collapse;
@@ -207,15 +207,30 @@ table {
     border-style: hidden;
     box-shadow: 0 0 10px 2px #666;
     white-space: nowrap;
-    overflow-x: scroll;
+    overflow: auto;
 }
 
-table th:first-child {
+th:first-child {
     border-top-left-radius: 10px;
 }
 
-table th:last-child {
+th:last-child {
     border-top-right-radius: 10px;
+}
+
+th:first-child,
+td:first-child {
+    position: -webkit-sticky;
+    /* Für Safari */
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background-color: rgb(255, 255, 255);
+}
+
+th:first-child {
+    z-index: 2;
+    background-color: #252536;
 }
 
 th,
@@ -235,13 +250,17 @@ th {
     -ms-user-select: none;
     /* IE 10 and IE 11 */
     user-select: none;
-    /* Standard syntax */
     top: 0;
     position: sticky;
+    z-index: 1;
 }
 
 th:hover {
     background-color: rgba(57, 57, 73, 0.9);
+}
+
+tr {
+    border-style: hidden;
 }
 
 #table-container {
@@ -270,8 +289,5 @@ th:hover {
     padding-left: 3px;
 }
 
-.grey-table {
-    background-color: #ccc;
-    filter: grayscale(100%);
-}
+.grey-table {}
 </style>

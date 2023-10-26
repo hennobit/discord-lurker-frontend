@@ -105,4 +105,8 @@ onMounted(() => {
 .downtime-time {
     font-weight: bolder;
 }
+
+p {
+    
+}
 </style>
