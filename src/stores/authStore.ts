@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    accessToken: 'test', 
+    accessToken: '', 
   }),
   getters: {
     getAccessToken: (state) => state.accessToken,
