@@ -20,9 +20,8 @@ const props = defineProps<{
 <style scoped>
 #container {
     display: flex;
-    width: 100%;
-    justify-content: center;
     align-items: center;
     flex-direction: column;
+    max-height: 100vh;
 }
 </style>

@@ -2,11 +2,12 @@
     <p>
         Bot is <span class="info">{{ botStatus }}</span> and running since
         <span class="info">{{ runningSince }}</span> with
-        <span class="info-downtime" @mouseenter="showDowntimeDetails = true" @mouseleave="showDowntimeDetails = false">{{ downtimes.length  }}
+        <span class="info-downtime" @mouseenter="showDowntimeDetails = true" @mouseleave="showDowntimeDetails = false">{{
+            downtimes.length }}
             <div id="downtime-div" v-if="showDowntimeDetails" @mouseenter="showDowntimeDetails = true"
                 @mouseleave="showDowntimeDetails = false">
                 <p v-if="downtimes.length > 0" v-for="(downtime, index) in downtimes" class="downtime-time">
-                    {{ index + 1}}. {{ downtime.from }} - {{ downtime.to }}
+                    {{ index + 1 }}. {{ downtime.from }} - {{ downtime.to }}
                 </p>
                 <p v-else>No downtimes.</p>
             </div>
@@ -23,7 +24,7 @@ const botStatusStore = useBotStatusStore();
 const botStatus = ref(botStatusStore.status);
 const runningSince = ref('');
 const showDowntimeDetails = ref(false);
-const downtimes = ref([] as { from: string, to: string }[]);
+const downtimes = ref([] as { from: string, to: string; }[]);
 
 watch(() => botStatusStore.status, (newStatus) => {
     botStatus.value = newStatus;
@@ -97,7 +98,6 @@ onMounted(() => {
     left: 0;
     color: white;
     background-color: rgb(255, 90, 90);
-    padding: 0.5rem;
     border-radius: 0.4rem;
     z-index: 1;
 }
@@ -107,6 +107,6 @@ onMounted(() => {
 }
 
 p {
-    
+    text-align: center;
 }
 </style>

@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import type { User } from '@/interfaces/User';
 
 const props = defineProps<{
@@ -257,12 +257,12 @@ tr {
 
 #table-container {
     display: flex;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
     flex-direction: column;
     max-width: 100%;
-    height: 92vh;
-    padding: 2rem;
+    height: 90vh;
+    margin-top: 1.3rem;
 }
 
 #filter-bar {
