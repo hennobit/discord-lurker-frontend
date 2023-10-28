@@ -39,8 +39,6 @@ router.beforeEach(async (to, from, next) => {
     const expiresAt = Number(authStore.tokenExpiresAt);
 
     if (!tokenChecked) {
-        tokenChecked = true;
-
         if (!accessToken || expiresAt < Date.now()) {
             return next({ name: 'Login' });
         }
@@ -55,6 +53,7 @@ router.beforeEach(async (to, from, next) => {
 
             if (response.status === 200) {
                 next({ name: 'Dashboard' });
+                tokenChecked = true;
             } else {
                 next({ name: 'Login' });
             }

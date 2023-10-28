@@ -40,9 +40,6 @@ async function auth() {
             if (tokenResponse.ok) {
                 const tokenData = await tokenResponse.json();
                 const access = tokenData.access_token;
-
-                console.log('Token-Austausch erfolgreich', tokenData);
-
                 const expiresAt = Date.now() + tokenData.expires_in * 1000;
 
                 useAuthStore().setAccessToken(access, expiresAt);
@@ -60,10 +57,8 @@ async function auth() {
                     window.history.replaceState({}, document.title, newUrl);
                 }
                 router.push('/dashboard');
-
-
             } else {
-                console.error('Fehler beim Token-Austausch', tokenResponse);
+                console.error('Error Token Response', tokenResponse);
                 isAuthenticating.value = false;
             }
         } catch (error) {
