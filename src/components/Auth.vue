@@ -23,7 +23,7 @@ async function auth() {
         try {
             const formData = new URLSearchParams({
                 client_id: "1160542994269741087",
-                client_secret: "J6wSJFmkcNUYmOZOuIQCy-Yc_zUPMUX7",
+                client_secret: await getSecret(),
                 grant_type: 'authorization_code',
                 code: code.toString(),
                 redirect_uri: import.meta.env.DEV ? 'http://localhost:5173/#/auth' : 'http://discord-lurker.com/#/auth',

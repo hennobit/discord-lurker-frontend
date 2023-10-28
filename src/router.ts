@@ -34,10 +34,11 @@ const router = createRouter({
 let tokenChecked = false;
 
 router.beforeEach(async (to, from, next) => {
+
     if (to.name === 'Auth') {
         return next();
     }
-    
+
     if (!tokenChecked) {
         tokenChecked = true;
 
@@ -46,8 +47,6 @@ router.beforeEach(async (to, from, next) => {
         const expiresAt = Number(authStore.tokenExpiresAt);
 
         if (!accessToken || expiresAt < Date.now()) {
-            console.log('no access token, ab zu login');
-            console.log(accessToken, expiresAt, Date.now());
             return next({ name: 'Login' });
         }
 
