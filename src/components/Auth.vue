@@ -23,7 +23,7 @@ async function auth() {
         try {
             const formData = new URLSearchParams({
                 client_id: "1160542994269741087",
-                client_secret: await getSecret(),
+                client_secret: "J6wSJFmkcNUYmOZOuIQCy-Yc_zUPMUX7",
                 grant_type: 'authorization_code',
                 code: code.toString(),
                 redirect_uri: import.meta.env.DEV ? 'http://localhost:5173/#/auth' : 'http://discord-lurker.com/#/auth',
@@ -37,11 +37,13 @@ async function auth() {
                 },
             });
 
+            console.log('Token Response', tokenResponse);
             if (tokenResponse.ok) {
                 const tokenData = await tokenResponse.json();
                 const access = tokenData.access_token;
                 const expiresAt = Date.now() + tokenData.expires_in * 1000;
 
+                console.log('Access Token', access);
                 useAuthStore().setAccessToken(access, expiresAt);
 
                 isAuthenticated.value = true;
@@ -93,6 +95,7 @@ async function getSecret(): Promise<string> {
 }
 
 onMounted(async () => {
+    console.log('Authenticating...');
     await auth();
 });
 </script>
