@@ -189,7 +189,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
 table {
     display: block;
     border-collapse: collapse;
@@ -213,7 +212,6 @@ th:last-child {
 th:first-child,
 td:first-child {
     position: -webkit-sticky;
-    /* Für Safari */
     position: sticky;
     left: 0;
     z-index: 1;
@@ -227,7 +225,6 @@ th:first-child {
 
 th,
 td {
-    border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
 }
@@ -253,6 +250,22 @@ th:hover {
 
 tr {
     border-style: hidden;
+}
+
+tr:nth-child(odd) td:first-child {
+    background-color: #ffffff;
+}
+
+tr:nth-child(even) td:first-child {
+    background-color: #dedede;
+}
+
+tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+tr:nth-child(even) {
+    background-color: #dedede;
 }
 
 #table-container {

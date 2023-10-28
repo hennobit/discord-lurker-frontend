@@ -4,7 +4,7 @@
 
     <h2>Your Servers:</h2>
     <div class="server-grid">
-      <ServerCard v-for="guild in guilds" :key="guild.id" :server="guild" :active-bot="guild.isBotPresent" />
+      <ServerCard v-for="guild in guilds" :key="guild.id" :server="guild" :active-bot="guild.isBotPresent ? guild.isBotPresent : false" />
     </div>
   </div>
 </template>

@@ -41,6 +41,12 @@ async function auth() {
                 const tokenData = await tokenResponse.json();
                 const access = tokenData.access_token;
 
+                console.log('Token-Austausch erfolgreich', tokenData);
+
+                const expiresAt = Date.now() + tokenData.expires_in * 1000;
+
+                useAuthStore().setAccessToken(access, expiresAt);
+
                 isAuthenticated.value = true;
                 isAuthenticating.value = false;
 
@@ -49,9 +55,6 @@ async function auth() {
                     useUserStore().setUserData(userInfo);
                 }
 
-                useAuthStore().setAccessToken(access);
-
-                // delete the code from the url
                 if (window.location.search.includes('code=')) {
                     const newUrl = window.location.href.split('?')[0] + '#/dashboard';
                     window.history.replaceState({}, document.title, newUrl);
