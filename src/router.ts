@@ -34,11 +34,13 @@ const router = createRouter({
 let tokenChecked = false;
 
 router.beforeEach(async (to, from, next) => {
-    const authStore = useAuthStore();
-    const accessToken = authStore.accessToken;
-    const expiresAt = Number(authStore.tokenExpiresAt);
-
     if (!tokenChecked) {
+        tokenChecked = true; 
+
+        const authStore = useAuthStore();
+        const accessToken = authStore.accessToken;
+        const expiresAt = Number(authStore.tokenExpiresAt);
+
         if (!accessToken || expiresAt < Date.now()) {
             return next({ name: 'Login' });
         }
@@ -52,14 +54,13 @@ router.beforeEach(async (to, from, next) => {
             });
 
             if (response.status === 200) {
-                next({ name: 'Dashboard' });
-                tokenChecked = true;
+                return next({ name: 'Dashboard' });
             } else {
-                next({ name: 'Login' });
+                return next({ name: 'Login' });
             }
         } catch (error) {
             console.error(error);
-            next({ name: 'Login' });
+            return next({ name: 'Login' });
         }
     } else {
         next();
