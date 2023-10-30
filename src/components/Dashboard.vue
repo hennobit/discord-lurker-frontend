@@ -4,7 +4,8 @@
 
     <h2>Your Servers:</h2>
     <div class="server-grid">
-      <ServerCard v-for="guild in guilds" :key="guild.id" :server="guild" :active-bot="guild.isBotPresent ? guild.isBotPresent : false" />
+      <ServerCard v-for="guild in guilds" :key="guild.id" :server="guild"
+        :active-bot="guild.isBotPresent ? guild.isBotPresent : false" />
     </div>
   </div>
 </template>
@@ -16,12 +17,11 @@ import ServerCard from '@/components/ServerCard.vue';
 import { useAuthStore } from '@/stores/authStore';
 import { onMounted, ref } from 'vue';
 import { useGuildsStore } from '@/stores/guildsStore';
-
 const guilds = ref<Server[]>([]);
-const userStore = useUserStore();
-const userName = userStore.global_name;
+const userName = useUserStore().global_name;
 
-async function fetchGuilds(access: string) {
+async function fetchGuilds(): Promise<void> {
+  const access = useAuthStore().accessToken;
   guilds.value = useGuildsStore().guilds;
 
   const url = 'https://discord.com/api/v10/users/@me/guilds';
@@ -62,31 +62,33 @@ async function getGuildsWithBotOnIt(): Promise<string[]> {
       }),
     });
 
-    if (response.ok) {
-      const responseJson = await response.json();
-      const serverIds: string[] = responseJson.serverIds;
-      guilds.value.forEach((guild) => {
-        if (serverIds.includes(guild.id)) {
-          guild.isBotPresent = true;
-        } else {
-          guild.isBotPresent = false;
-        }
-      });
-
-      // sort guilds by bot presence
-      guilds.value.sort((a, b) => {
-        if (a.isBotPresent && !b.isBotPresent) {
-          return -1;
-        } else if (!a.isBotPresent && b.isBotPresent) {
-          return 1;
-        } else {
-          return 0;
-        }
-      });
-
-      useGuildsStore().setGuilds(guilds.value);
-      return responseJson;
+    if (!response.ok) {
+      return [];
     }
+
+    const responseJson = await response.json();
+    const serverIdsString: string[] = responseJson.serverIds;
+    guilds.value.forEach((guild) => {
+      if (serverIdsString.includes(guild.id)) {
+        guild.isBotPresent = true;
+      } else {
+        guild.isBotPresent = false;
+      }
+    });
+
+    // sort guilds by bot presence
+    guilds.value.sort((a, b) => {
+      if (a.isBotPresent && !b.isBotPresent) {
+        return -1;
+      }
+      if (!a.isBotPresent && b.isBotPresent) {
+        return 1;
+      }
+      return 0;
+    });
+
+    useGuildsStore().setGuilds(guilds.value);
+    return responseJson;
 
   } catch (error) {
     console.error('Error', error);
@@ -95,7 +97,7 @@ async function getGuildsWithBotOnIt(): Promise<string[]> {
 }
 
 onMounted(async () => {
-  await fetchGuilds(useAuthStore().accessToken);
+  await fetchGuilds();
   await getGuildsWithBotOnIt();
 });
 </script>

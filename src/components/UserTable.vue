@@ -4,27 +4,17 @@
         <table id="table">
             <thead>
                 <tr>
-                    <th @click="sortTable('username')">Username <font-awesome-icon icon="fa-solid fa-sort" class="icon" />
-                    </th>
-                    <th @click="sortTable('status')">Status <font-awesome-icon icon="fa-solid fa-sort" class="icon" /></th>
-                    <th @click="sortTable('unmuted_time')">Mic. Open <font-awesome-icon icon="fa-solid fa-sort"
-                            class="icon" /></th>
-                    <th @click="sortTable('total_time_muted')">Mic. Muted <font-awesome-icon icon="fa-solid fa-sort"
-                            class="icon" /></th>
-                    <th @click="sortTable('total_time_sound_muted')">Sound Muted <font-awesome-icon icon="fa-solid fa-sort"
-                            class="icon" /></th>
-                    <th @click="sortTable('voice_channel')">Voice Channel <font-awesome-icon icon="fa-solid fa-sort"
-                            class="icon" /></th>
-                    <th @click="sortTable('total_time')">Total Time in Channel <font-awesome-icon icon="fa-solid fa-sort"
-                            class="icon" /></th>
-                    <th @click="sortTable('online_total')">Online Total <font-awesome-icon icon="fa-solid fa-sort"
-                            class="icon" /></th>
-                    <th @click="sortTable('idle_total')">Idle Total <font-awesome-icon icon="fa-solid fa-sort"
-                            class="icon" /></th>
-                    <th @click="sortTable('dnd_total')">Do Not Disturb Total <font-awesome-icon icon="fa-solid fa-sort"
-                            class="icon" /></th>
-                    <th @click="sortTable('percentage_total')">% of Online Time on Discord<font-awesome-icon
-                            icon="fa-solid fa-sort" class="icon" /></th>
+                    <th @click="sortTable('username')">Username</th>
+                    <th @click="sortTable('status')">Status </th>
+                    <th @click="sortTable('unmuted_time')">Mic. Open </th>
+                    <th @click="sortTable('total_time_muted')">Mic. Muted </th>
+                    <th @click="sortTable('total_time_sound_muted')">Sound Muted </th>
+                    <th @click="sortTable('voice_channel')">Voice Channel </th>
+                    <th @click="sortTable('total_time')">Total Time in Channel </th>
+                    <th @click="sortTable('online_total')">Online Total </th>
+                    <th @click="sortTable('idle_total')">Idle Total </th>
+                    <th @click="sortTable('dnd_total')">Do Not Disturb Total </th>
+                    <th @click="sortTable('percentage_total')">% of Online Time on Discord</th>
                 </tr>
             </thead>
             <tbody>
@@ -98,13 +88,13 @@ function getUserData(): void {
 }
 
 function getUserStatusIcon(status: string) {
-    if (status == 'online') {
+    if (status === 'online') {
         return '🟢';
-    } else if (status == 'offline') {
+    } else if (status === 'offline') {
         return '⚫';
-    } else if (status == 'idle') {
+    } else if (status === 'idle') {
         return '🟡';
-    } else if (status == 'dnd') {
+    } else if (status === 'dnd') {
         return '🔴';
     }
 }
@@ -194,7 +184,7 @@ table {
     border-collapse: collapse;
     border-radius: 10px;
     max-width: 100%;
-    height: 80%;
+    max-height: 80%;
     border-style: hidden;
     box-shadow: 0 0 10px 2px #666;
     white-space: nowrap;

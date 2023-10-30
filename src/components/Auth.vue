@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import router from '@/router';
 import { useAuthStore } from '@/stores/authStore';
-import { useUserStore } from '@/stores/userStore';
+import { fetchUserInfo, useUserStore } from '@/stores/userStore';
 import { ref, onMounted } from 'vue';
 
 const isAuthenticating = ref(false);
@@ -37,13 +37,11 @@ async function auth() {
                 },
             });
 
-            console.log('Token Response', tokenResponse);
             if (tokenResponse.ok) {
                 const tokenData = await tokenResponse.json();
                 const access = tokenData.access_token;
                 const expiresAt = Date.now() + tokenData.expires_in * 1000;
 
-                console.log('Access Token', access);
                 useAuthStore().setAccessToken(access, expiresAt);
 
                 isAuthenticated.value = true;
@@ -70,23 +68,6 @@ async function auth() {
     }
 }
 
-async function fetchUserInfo(access: string): Promise<DiscordUser | null> {
-    const userInfoResponse = await fetch('https://discord.com/api/v10/users/@me', {
-        headers: {
-            'Authorization': `Bearer ${access}`,
-        },
-    });
-
-    if (userInfoResponse.ok) {
-        const userInfo = await userInfoResponse.json();
-        return userInfo;
-    }
-
-    console.error('Fehler beim Abrufen der Benutzerinformationen');
-    isAuthenticating.value = false;
-    return null;
-}
-
 async function getSecret(): Promise<string> {
     const url = (import.meta.env.DEV ? import.meta.env.VITE_IP_LOCALHOST : import.meta.env.VITE_IP_PROD) + "/secret";
     const response = await fetch(url);
@@ -95,7 +76,6 @@ async function getSecret(): Promise<string> {
 }
 
 onMounted(async () => {
-    console.log('Authenticating...');
     await auth();
 });
 </script>

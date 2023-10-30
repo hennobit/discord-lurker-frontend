@@ -31,6 +31,7 @@ const router = createRouter({
     ]
 });
 
+// prevent infinte loop
 let tokenChecked = false;
 
 router.beforeEach(async (to, from, next) => {

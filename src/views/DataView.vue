@@ -1,7 +1,7 @@
 <template>
     <div id="container">
         <h1>{{ serverName }}</h1>
-        <BotStatus></BotStatus>
+        <BotStatus :server-id="serverId"></BotStatus>
         <UserTable :server-id="serverId"></UserTable>
     </div>
 </template>

@@ -1,7 +1,7 @@
 <template>
     <p>
-        Bot is <span class="info">{{ botStatus }}</span> and running since
-        <span class="info">{{ runningSince }}</span> with
+        Bot is <span class="info">{{ botStatus }}</span> and tracks this server since
+        <span class="info">{{ trackingSince }}</span> with
         <span class="info-downtime" @mouseenter="showDowntimeDetails = true" @mouseleave="showDowntimeDetails = false">{{
             downtimes.length }}
             <div id="downtime-div" v-if="showDowntimeDetails" @mouseenter="showDowntimeDetails = true"
@@ -20,9 +20,14 @@
 import { onMounted, ref, watch } from 'vue';
 import { useBotStatusStore } from '@/stores/botStatusStore';
 
+const props = defineProps<{
+    serverId: string;
+}>();
+
 const botStatusStore = useBotStatusStore();
 const botStatus = ref(botStatusStore.status);
-const runningSince = ref('');
+//const runningSince = ref('');
+const trackingSince = ref('');
 const showDowntimeDetails = ref(false);
 const downtimes = ref([] as { from: string, to: string; }[]);
 
@@ -46,7 +51,27 @@ async function getBotStatus(): Promise<void> {
         });
 };
 
-async function getRunningSinceDate(): Promise<void> {
+async function getTrackingSince() {
+    const url = (import.meta.env.DEV ? import.meta.env.VITE_IP_LOCALHOST : import.meta.env.VITE_IP_PROD) + "/trackingsince";
+    // we need to create a post request with the server id
+    const requestData = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ serverId: props.serverId })
+    };
+    await fetch(url, requestData)
+        .then(response => response.json())
+        .then(data => {
+            trackingSince.value = new Date(data.trackingSince).toLocaleString();
+        })
+        .catch(error => {
+            console.error('Fehler bei der Anfrage an /trackingsince:', error);
+        });
+}
+
+/*async function getRunningSinceDate(): Promise<void> {
     const url = (import.meta.env.DEV ? import.meta.env.VITE_IP_LOCALHOST : import.meta.env.VITE_IP_PROD) + "/runningsince";
     await fetch(url)
         .then(response => response.json())
@@ -56,7 +81,7 @@ async function getRunningSinceDate(): Promise<void> {
         .catch(error => {
             console.error('Fehler bei der Anfrage an /runningsince:', error);
         });
-};
+};*/
 
 async function getDowntimes(): Promise<void> {
     const url = (import.meta.env.DEV ? import.meta.env.VITE_IP_LOCALHOST : import.meta.env.VITE_IP_PROD) + "/downtimes";
@@ -64,7 +89,6 @@ async function getDowntimes(): Promise<void> {
         .then(response => response.json())
         .then(data => {
             downtimes.value = data.downtimes;
-            console.log(downtimes.value);
         })
         .catch(error => {
             console.error('Fehler bei der Anfrage an /downtimes:', error);
@@ -73,7 +97,8 @@ async function getDowntimes(): Promise<void> {
 
 onMounted(() => {
     getBotStatus();
-    getRunningSinceDate();
+    //getRunningSinceDate();
+    getTrackingSince();
     getDowntimes();
     setInterval(getBotStatus, 5000);
 });

@@ -14,4 +14,10 @@ export interface User {
     dnd_total: number;
     last_status_change: string;
     percentage_total: number;
+    activity: string;
+    avatar: string;
+    roles: string; 
+    premium_since: string; 
+    joined_at: string; 
+    created_at: string; 
 }

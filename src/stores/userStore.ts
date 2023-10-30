@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia';
+import { getCookie, setCookie } from './CookieHandler';
 
 export const useUserStore = defineStore({
   id: 'user',
   state: () => ({
-    id: '',
+    id: getCookie('user_id') || '',
     username: '',
     avatar: '',
     discriminator: '',
@@ -12,7 +13,7 @@ export const useUserStore = defineStore({
     flags: 0,
     banner: null as string | null,
     accent_color: null as string | null, 
-    global_name: '',
+    global_name: getCookie('global_name') || '',
     avatar_decoration_data: null as any | null,
     banner_color: null as string | null, 
     mfa_enabled: false,
@@ -36,11 +37,24 @@ export const useUserStore = defineStore({
       this.banner_color = userData.banner_color;
       this.mfa_enabled = userData.mfa_enabled;
       this.locale = userData.locale;
+      setCookie('user_id', userData.id);
+      setCookie('global_name', userData.global_name);
     },
   },
 });
 
-// Exportiere die Store-Instanz
-export function setupUserStore() {
-  return useUserStore();
+export async function fetchUserInfo(access: string): Promise<DiscordUser | null> {
+  const userInfoResponse = await fetch('https://discord.com/api/v10/users/@me', {
+      headers: {
+          'Authorization': `Bearer ${access}`,
+      },
+  });
+
+  if (userInfoResponse.ok) {
+      const userInfo = await userInfoResponse.json();
+      return userInfo;
+  }
+
+  console.error('Error User Info Response', userInfoResponse);
+  return null;
 }
