@@ -43,6 +43,7 @@ async function auth() {
                 const expiresAt = Date.now() + tokenData.expires_in * 1000;
 
                 useAuthStore().setAccessToken(access, expiresAt);
+                console.log('set Access Token in Auth.vue', access);
 
                 isAuthenticated.value = true;
                 isAuthenticating.value = false;

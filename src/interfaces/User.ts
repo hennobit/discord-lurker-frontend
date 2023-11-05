@@ -19,5 +19,6 @@ export interface User {
     roles: string; 
     premium_since: string; 
     joined_at: string; 
-    created_at: string; 
+    created_at: string;
+    is_bot: number;
 }

@@ -36,6 +36,7 @@ let tokenChecked = false;
 
 router.beforeEach(async (to, from, next) => {
 
+    console.log('to', to, 'tokenChecked', tokenChecked);
     if (to.name === 'Auth') {
         return next();
     }
@@ -43,10 +44,10 @@ router.beforeEach(async (to, from, next) => {
     if (!tokenChecked) {
         tokenChecked = true;
 
-        const authStore = useAuthStore();
-        const accessToken = authStore.accessToken;
-        const expiresAt = Number(authStore.tokenExpiresAt);
+        const accessToken = useAuthStore().accessToken;
+        const expiresAt = Number(useAuthStore().tokenExpiresAt);
 
+        console.log('accessToken in router.ts', accessToken);
         if (!accessToken || expiresAt < Date.now()) {
             return next({ name: 'Login' });
         }

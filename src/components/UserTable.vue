@@ -1,6 +1,7 @@
 <template>
     <div id="table-container">
-        <input type="text" id="filter-bar" placeholder="Filter" v-model="filterText" @input="() => getFilteredUsers()">
+        <input type="text" id="filter-bar" placeholder="Filter" v-model="filterText" @input="() => updateFilteredUsers()">
+        <FilterPanel></FilterPanel>
         <table id="table">
             <thead>
                 <tr>
@@ -19,16 +20,21 @@
             </thead>
             <tbody>
                 <tr v-for="user in filteredUsers" :key="user.user_id">
-                    <td>{{ user.username }}</td>
+                    <td>
+                        <div class="user-info">
+                            <span class="username">{{ user.username }}</span>
+                            <flair v-if="user.is_bot === 1" :name="'Bot'" :color="'#7da3f5'"></flair>
+                        </div>
+                    </td>
                     <td>{{ getUserStatusIcon(user.status) }}</td>
                     <td>{{ formatTime(user.unmuted_time) }}</td>
                     <td>{{ formatTime(user.total_time_muted) }}</td>
                     <td>{{ formatTime(user.total_time_sound_muted) }}</td>
                     <td>{{ user.voice_channel }}</td>
                     <td>{{ formatTime(user.total_time) }}</td>
-                    <td>{{ formatTime(user.online_total) }} </td>
-                    <td>{{ formatTime(user.idle_total) }} </td>
-                    <td>{{ formatTime(user.dnd_total) }} </td>
+                    <td>{{ formatTime(user.online_total) }}</td>
+                    <td>{{ formatTime(user.idle_total) }}</td>
+                    <td>{{ formatTime(user.dnd_total) }}</td>
                     <td>{{ user.percentage_total }}%</td>
                 </tr>
             </tbody>
@@ -37,12 +43,17 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import type { User } from '@/interfaces/User';
+import FilterPanel from './FilterPanel.vue';
+import Flair from './Flair.vue';
+import { useFilterStore } from '@/stores/filterStore';
 
 const props = defineProps<{
     serverId: string;
 }>();
+
+const filterStore = useFilterStore()
 
 const users = ref<User[]>([]);
 const filteredUsers = ref<User[]>([]);
@@ -78,8 +89,9 @@ function getUserData(): void {
             });
 
             filteredUsers.value = [...users.value];
+            console.log(filteredUsers);
 
-            getFilteredUsers();
+            updateFilteredUsers();
             sortTable(sortColumn.value as keyof User);
         })
         .catch((error) => {
@@ -111,9 +123,12 @@ function formatTime(seconds: number): string {
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 }
 
-function getFilteredUsers() {
-    filteredUsers.value = users.value.filter(user => {
-        return user.username.toLowerCase().includes(filterText.value.toLowerCase());
+function updateFilteredUsers() {
+    console.log("update die scheiße")
+    filteredUsers.value = users.value.filter((user) => {
+        const isBotFilter = filterStore.isShowBots ? true : !user.is_bot;
+        const textFilter = user.username.toLowerCase().includes(filterText.value.toLowerCase());
+        return isBotFilter && textFilter;
     });
 }
 
@@ -172,6 +187,11 @@ function sortTable(column: keyof User) {
         }
     }
 }*/
+
+watch(() => filterStore.isShowBots, () => {
+    updateFilteredUsers();
+});
+
 onMounted(() => {
     getUserData();
     setInterval(getUserData, 5000);
@@ -281,7 +301,11 @@ tr:nth-child(even) {
     padding-left: 1rem;
 }
 
-.icon {
-    padding-left: 3px;
+.user-info {
+    display: flex;
+}
+
+.username {
+    flex: 1;
 }
 </style>
