@@ -26,7 +26,7 @@ async function auth() {
                 client_secret: await getSecret(),
                 grant_type: 'authorization_code',
                 code: code.toString(),
-                redirect_uri: import.meta.env.DEV ? 'http://localhost:5173/#/auth' : 'http://discord-lurker.com/#/auth',
+                redirect_uri: import.meta.env.DEV ? 'http://localhost:5173/#/auth' : 'https://discord-lurker.com/#/auth',
             });
 
             const tokenResponse = await fetch('https://discord.com/api/v10/oauth2/token', {
