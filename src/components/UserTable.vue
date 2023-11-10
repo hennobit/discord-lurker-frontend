@@ -124,7 +124,6 @@ function formatTime(seconds: number): string {
 }
 
 function updateFilteredUsers() {
-    console.log("update die scheiße")
     filteredUsers.value = users.value.filter((user) => {
         const isBotFilter = filterStore.isShowBots ? true : !user.is_bot;
         const textFilter = user.username.toLowerCase().includes(filterText.value.toLowerCase());
