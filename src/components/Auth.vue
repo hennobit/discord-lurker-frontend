@@ -14,7 +14,7 @@ import { ref, onMounted } from 'vue';
 
 const isAuthenticating = ref(false);
 const isAuthenticated = ref(false);
-//deploytest1
+//deploytest2
 async function auth() {
     const code = new URLSearchParams(window.location.search).get('code');
     if (code) {
