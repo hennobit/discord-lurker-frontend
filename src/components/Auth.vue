@@ -52,7 +52,7 @@ async function auth() {
                 if (userInfo) {
                     useUserStore().setUserData(userInfo);
                 }
-
+                // what is this???
                 if (window.location.search.includes('code=')) {
                     const newUrl = window.location.href.split('?')[0] + '#/dashboard';
                     window.history.replaceState({}, document.title, newUrl);
