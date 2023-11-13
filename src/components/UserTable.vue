@@ -89,7 +89,6 @@ function getUserData(): void {
             });
 
             filteredUsers.value = [...users.value];
-            console.log(filteredUsers);
 
             updateFilteredUsers();
             sortTable(sortColumn.value as keyof User);
