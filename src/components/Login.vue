@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-content">
       <h1 class="login-title">Login with Discord</h1>
-      <button class="login-button" @click="loginWithDiscord">Mit Discord anmelden</button>
+      <button class="login-button" @click="loginWithDiscord">Login</button>
     </div>
   </div>
 </template>
