@@ -1,6 +1,6 @@
 # Discord Lurker  
 # Overview: 
-Discord Lurker is a Python-based bot designed to lurk in a Discord server and collect various data. Currently, it supports a single server, but future updates aim to expand this to multiple servers.
+Discord Lurker is a Python-based bot designed to lurk in a Discord server and collect various data. It supports multiple servers.
 The project includes a web interface and utilizes an SQLite database for data storage.  
 # Features: 
 Voice Channel Time Tracking: Discord Lurker records the time users spend in voice channels, offering insights into user activity and engagement. 
